@@ -1,49 +1,50 @@
 import throttle from 'lodash.throttle';
 
+const LOCAL_STRADGE_KEY = 'feedback-form-state';
 const formCurrentValue = {};
+let currentStorageData = {};
+
+const { email, message } = currentStorageData;
+
+currentStorageData = getDataFromStorage(LOCAL_STRADGE_KEY);
+formCurrentValue.email = email;
+formCurrentValue.message = message;
 
 const formHandleValue = document.querySelector('.feedback-form');
 const submitRef = formHandleValue.querySelector('button');
 const inputRef = formHandleValue.querySelector('input');
 const textareaRef = formHandleValue.querySelector('textarea');
 
-formHandleValue.addEventListener('input', throttle(getHendleFormData, 500));
+formHandleValue.addEventListener('input', throttle(setDataFromStorage, 500));
 
-const save = (key, value) => {
+function setDataFromStorage(e) {
+  formCurrentValue[e.target.name] = e.target.value;
   try {
-    const serializedState = JSON.stringify(value);
-    localStorage.setItem(key, serializedState);
+    const serializedState = JSON.stringify(formCurrentValue);
+    localStorage.setItem(LOCAL_STRADGE_KEY, serializedState);
   } catch (error) {
     console.error('Set state error: ', error.message);
   }
-};
-
-function getHendleFormData(e) {
-  if (e.target.nodeName === 'INPUT') {
-    formCurrentValue.email = e.target.value;
-  }
-
-  if (e.target.nodeName === 'TEXTAREA') {
-    formCurrentValue.message = e.target.value;
-  }
-  save('feedback-form-state', formCurrentValue);
 }
 
-const load = key => {
+currentStorageData = getDataFromStorage(LOCAL_STRADGE_KEY);
+
+function getDataFromStorage(key) {
   try {
-    const serializedState = localStorage.getItem(key);
+    serializedState = localStorage.getItem(key);
     return serializedState === null ? undefined : JSON.parse(serializedState);
   } catch (error) {
     console.error('Get state error: ', error.message);
   }
-};
-
-let currentStorageData = load('feedback-form-state');
+}
 
 const autoFillForm = data => {
+  if (data === undefined) return;
+
   if (data.email !== undefined && data.email !== '') {
     inputRef.value = `${data.email}`;
   }
+
   if (data.message !== undefined && data.message !== '') {
     textareaRef.value = `${data.message}`;
   }
@@ -54,6 +55,7 @@ autoFillForm(currentStorageData);
 
 submitRef.addEventListener('click', e => {
   e.preventDefault();
+
   inputRef.style = 'outline: none';
   textareaRef.style = 'outline: none';
 
