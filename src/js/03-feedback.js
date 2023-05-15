@@ -1,13 +1,13 @@
 import throttle from 'lodash.throttle';
 
+const formCurrentValue = {};
+
 const formHandleValue = document.querySelector('.feedback-form');
 const submitRef = formHandleValue.querySelector('button');
 const inputRef = formHandleValue.querySelector('input');
 const textareaRef = formHandleValue.querySelector('textarea');
 
 formHandleValue.addEventListener('input', throttle(getHendleFormData, 500));
-
-const formCurrentValue = {};
 
 const save = (key, value) => {
   try {
@@ -41,19 +41,33 @@ const load = key => {
 let currentStorageData = load('feedback-form-state');
 
 const autoFillForm = data => {
-  if (data.email !== undefined) {
+  if (data.email !== undefined && data.email !== '') {
     inputRef.value = `${data.email}`;
   }
-
-  if (data.message !== undefined) {
+  if (data.message !== undefined && data.message !== '') {
     textareaRef.value = `${data.message}`;
   }
+  return;
 };
 
 autoFillForm(currentStorageData);
 
 submitRef.addEventListener('click', e => {
   e.preventDefault();
+  inputRef.style = 'outline: none';
+  textareaRef.style = 'outline: none';
+
+  if (inputRef.value === '') {
+    alert('Поле email не заповнене!');
+    inputRef.style = 'outline: 1px solid red';
+    return;
+  }
+  if (textareaRef.value === '') {
+    alert('Поле Message не заповнене!');
+    textareaRef.style = 'outline: 1px solid red';
+    return;
+  }
+
   console.log(currentStorageData);
   localStorage.removeItem('feedback-form-state');
   inputRef.value = '';
