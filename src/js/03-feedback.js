@@ -4,11 +4,11 @@ const LOCAL_STRADGE_KEY = 'feedback-form-state';
 const formCurrentValue = {};
 let currentStorageData = {};
 
-const { email, message } = currentStorageData;
+const { emailData, messageData } = currentStorageData;
 
 currentStorageData = getDataFromStorage(LOCAL_STRADGE_KEY);
-formCurrentValue.email = email;
-formCurrentValue.message = message;
+formCurrentValue.email = emailData;
+formCurrentValue.message = messageData;
 
 const formHandleValue = document.querySelector('.feedback-form');
 const submitRef = formHandleValue.querySelector('button');
@@ -34,7 +34,7 @@ function getDataFromStorage(key) {
     serializedState = localStorage.getItem(key);
     return serializedState === null ? undefined : JSON.parse(serializedState);
   } catch (error) {
-    console.error('Get state error: ', error.message);
+    console.error('Get state error:', error.message);
   }
 }
 
@@ -64,6 +64,7 @@ submitRef.addEventListener('click', e => {
     inputRef.style = 'outline: 1px solid red';
     return;
   }
+
   if (textareaRef.value === '') {
     alert('Поле Message не заповнене!');
     textareaRef.style = 'outline: 1px solid red';
