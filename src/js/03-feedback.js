@@ -43,5 +43,7 @@ submitRef.addEventListener('click', e => {
   }
 
   console.log(formData);
+  form.elements['email'].value = '';
+  form.elements['message'].value = '';
   localStorage.clear();
 });
