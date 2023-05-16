@@ -28,7 +28,9 @@ submitRef.addEventListener('click', e => {
   e.preventDefault();
 
   form.elements['email'].style = 'outline: none';
+  form.elements['email'].placeholder = '';
   form.elements['message'].style = 'outline: none';
+  form.elements['message'].placeholder = '';
 
   if (form.elements['email'].value === '') {
     form.elements['email'].placeholder = 'Enter your email';
