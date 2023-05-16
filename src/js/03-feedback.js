@@ -1,78 +1,47 @@
 import throttle from 'lodash.throttle';
 
-const LOCAL_STRADGE_KEY = 'feedback-form-state';
-const formCurrentValue = {};
-let currentStorageData = {};
+let formData = {};
+const form = document.querySelector('.feedback-form');
+const submitRef = form.querySelector('button');
+const LS = localStorage;
+const LS_KEY = 'feedback-form-state';
 
-const { emailData, messageData } = currentStorageData;
+form.addEventListener('input', throttle(setDataLS, 500));
 
-currentStorageData = getDataFromStorage(LOCAL_STRADGE_KEY);
-formCurrentValue.email = emailData;
-formCurrentValue.message = messageData;
-
-const formHandleValue = document.querySelector('.feedback-form');
-const submitRef = formHandleValue.querySelector('button');
-const inputRef = formHandleValue.querySelector('input');
-const textareaRef = formHandleValue.querySelector('textarea');
-
-formHandleValue.addEventListener('input', throttle(setDataFromStorage, 500));
-
-function setDataFromStorage(e) {
-  formCurrentValue[e.target.name] = e.target.value;
-  try {
-    const serializedState = JSON.stringify(formCurrentValue);
-    localStorage.setItem(LOCAL_STRADGE_KEY, serializedState);
-  } catch (error) {
-    console.error('Set state error: ', error.message);
-  }
+function setDataLS(e) {
+  formData[e.target.name] = e.target.value;
+  LS.setItem(LS_KEY, JSON.stringify(formData));
 }
 
-currentStorageData = getDataFromStorage(LOCAL_STRADGE_KEY);
-
-function getDataFromStorage(key) {
-  try {
-    serializedState = localStorage.getItem(key);
-    return serializedState === null ? undefined : JSON.parse(serializedState);
-  } catch (error) {
-    console.error('Get state error:', error.message);
+try {
+  if (LS.getItem(LS_KEY)) {
+    formData = JSON.parse(LS.getItem(LS_KEY));
+    for (let key in formData) {
+      form.elements[key].value = formData[key];
+    }
   }
+} catch (error) {
+  console.error('Set state error: ', error.message);
 }
-
-const autoFillForm = data => {
-  if (data === undefined) return;
-
-  if (data.email !== undefined && data.email !== '') {
-    inputRef.value = `${data.email}`;
-  }
-
-  if (data.message !== undefined && data.message !== '') {
-    textareaRef.value = `${data.message}`;
-  }
-  return;
-};
-
-autoFillForm(currentStorageData);
 
 submitRef.addEventListener('click', e => {
   e.preventDefault();
 
-  inputRef.style = 'outline: none';
-  textareaRef.style = 'outline: none';
+  form.elements['email'].style = 'outline: none';
+  form.elements['message'].style = 'outline: none';
 
-  if (inputRef.value === '') {
-    alert('Поле email не заповнене!');
-    inputRef.style = 'outline: 1px solid red';
+  if (form.elements['email'].value === '') {
+    form.elements['email'].placeholder = 'Enter your email';
+    form.elements['email'].style = 'outline:1px solid red';
     return;
   }
 
-  if (textareaRef.value === '') {
-    alert('Поле Message не заповнене!');
-    textareaRef.style = 'outline: 1px solid red';
+  if (form.elements['message'].value === '') {
+    form.elements['message'].placeholder = 'Enter your message';
+    form.elements['message'].style = 'outline:1px solid red';
     return;
   }
 
-  console.log(currentStorageData);
-  localStorage.removeItem('feedback-form-state');
-  inputRef.value = '';
-  textareaRef.value = '';
+  console.log(formData);
+  localStorage.clear();
 });
